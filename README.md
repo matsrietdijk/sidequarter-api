@@ -1,14 +1,15 @@
-# sidequarter-api
+# Sidequarter API
 
-A Clojure library designed to ... well, that part is up to you.
+An API backend to monitor multiple [Sidekiq](http://sidekiq.org) instances. Keeping an eye out for your Sidekiqs without having to find them individually.
 
-## Usage
+# Flow
 
-FIXME
+Within this project the following flow is used regarding version/source control:
 
-## License
+- All changes are made and committed on a dedicated branch (except documentation changes)
+- Branches are categorized by prefixing the branch name, example: `feature/flow`
+- Pull Requests (PR) are used to merge changes into the `master` branch
 
-Copyright © 2015 FIXME
+The categories that are used in this project for branches are:
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+`feature`, `patch`, `update` and `release`
