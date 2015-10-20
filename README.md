@@ -2,6 +2,10 @@
 
 An API backend to monitor multiple [Sidekiq](http://sidekiq.org) instances. Keeping an eye out for your Sidekiqs without having to find them individually.
 
+# Code Status
+
+[![Build Status](https://travis-ci.org/matsrietdijk/sidequarter-api.svg)](https://travis-ci.org/matsrietdijk/sidequarter-api)
+
 # Flow
 
 Within this project the following flow is used regarding version/source control:
