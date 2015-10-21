@@ -1,6 +1,7 @@
 (defproject sidequarter-api "0.0.0-ALPHA"
   :description "An API backend to monitor multiple Sidekiq instances"
-  :plugins [[lein-ring "0.9.7"]]
+  :plugins [[lein-ring "0.9.7"]
+            [lein-kibit "0.1.2"]]
   :ring {:handler sidequarter-api.core/handler}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [liberator "0.13"]
