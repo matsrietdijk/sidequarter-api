@@ -12,5 +12,4 @@
   (ANY "/" [] index-action))
 
 (def handler
-  (-> app
-      wrap-params))
+  (wrap-params app))
