@@ -13,6 +13,9 @@ Within this project the following flow is used regarding version/source control:
 - All changes are made and committed on a dedicated branch (except documentation changes)
 - Branches are categorized by prefixing the branch name, example: `feature/flow`
 - Pull Requests (PR) are used to merge changes into the `master` branch
+- Before a PR is merged:
+  - [Travis-CI](https://travis-ci.org/matsrietdijk/sidequarter-api/pull_requests) should return a positive build result
+
 
 The categories that are used in this project for branches are:
 
