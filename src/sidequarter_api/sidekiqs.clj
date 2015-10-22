@@ -1,6 +1,9 @@
 (ns sidequarter-api.sidekiqs
-  (:require [yesql.core :refer [defquery]]
+  (:require [yesql.core :refer [defqueries]]
             [environ.core :refer [env]]))
 
-(defquery sidekiqs "queries/sidekiqs.sql"
+(defqueries "queries/sidekiqs.sql"
   {:connection (env :database-url)})
+
+(defn find-by-id [id]
+  (first (where-id {:id id})))
