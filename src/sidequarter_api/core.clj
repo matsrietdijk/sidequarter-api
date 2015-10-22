@@ -2,6 +2,7 @@
   (:require [liberator.core :refer [resource defresource]]
             [ring.middleware.params :refer [wrap-params]]
             [compojure.core :refer [defroutes ANY]]
+            [compojure.route :as route]
             [sidequarter-api.util :refer [->valid-id]]
             [sidequarter-api.sidekiqs :as sidekiqs]))
 
@@ -13,6 +14,9 @@
   {:available-media-types ["application/json"]
    :handle-not-found (status-response 404 "Not found")
    :handle-exception (status-response 500 "Internal server error")})
+
+(defresource not-found-action resource-defaults
+  :handle-ok (status-response 404 "Not found"))
 
 (defresource index-action resource-defaults
   :allowed-methods [:get :options]
@@ -28,7 +32,8 @@
 
 (defroutes app
   (ANY "/" [] index-action)
-  (ANY "/:id" [id] (show-action id)))
+  (ANY "/:id" [id] (show-action id))
+  (route/not-found not-found-action))
 
 (def handler
   (wrap-params app))
