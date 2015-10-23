@@ -18,10 +18,10 @@
   {:code code
    :message message})
 
-(defn internal-error-resp []
+(defn internal-error-resp [_]
   (status-response 500 "Internal server error"))
 
-(defn not-found-resp []
+(defn not-found-resp [_]
   (status-response 404 "Not found"))
 
 (defmacro wcar* [conn & body] `(car/wcar ~conn ~@body))
