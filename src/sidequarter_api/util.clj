@@ -7,6 +7,13 @@
            read-string
            int))
 
+(defn ->int [v]
+  (let [res (some->> (str v)
+                     (re-find #"^-?[0-9]+")
+                     read-string
+                     int)]
+    (if (nil? res) 0 res)))
+
 (defn status-response [code message]
   {:code code
    :message message})
