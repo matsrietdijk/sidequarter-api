@@ -37,8 +37,8 @@
                     (car/scard (key "queues")) ; 6
                     (car/smembers (key "processes")) ; 7
                     (car/smembers (key "queues"))) ; 8
-        vals (mapv ->int (take 7 data))
-        [procs queues] (take-last 2 data)
+        [raw-vals [procs queues]] (split-at 7 data)
+        vals (mapv ->int raw-vals)
         more-data (wcar* (conn sk)
                          (mapv #(car/hget (key %) "busy") procs)
                          (mapv #(car/llen (key (str "queue:" %))) queues))
