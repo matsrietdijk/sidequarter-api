@@ -1,6 +1,7 @@
 (ns sidequarter-api.sidekiqs
   (:require [yesql.core :refer [defqueries]]
             [clojure.string :refer [blank?]]
+            [clojure.walk :refer [keywordize-keys]]
             [sidequarter-api.util :refer [wcar* ->int]]
             [taoensso.carmine :as car]
             [environ.core :refer [env]]))
@@ -24,6 +25,14 @@
 (defn queues [sk]
   (wcar* (conn sk)
          (car/smembers (with-ns sk "queues"))))
+
+(defn info [sk]
+  (let [info (-> (wcar* (conn sk)
+                        (car/info*))
+                 keywordize-keys)
+        keys [:used_memory_human :used_memory_peak_human :uptime_in_seconds :redis_version
+              :connected_clients]]
+    (select-keys info keys)))
 
 (defn stats [sk]
   (let [key #(with-ns sk %)

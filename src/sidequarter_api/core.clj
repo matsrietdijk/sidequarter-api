@@ -42,9 +42,9 @@
   :allowed-methods [:get :options]
   :exists? (get-entry-hash sidekiq-id)
   :handle-ok (fn [ctx]
-               (->> (::entry ctx)
-                    (sidekiqs/stats)
-                    (hash-map :stats))))
+               (let [[stats info] (mapv #(% (::entry ctx)) [sidekiqs/stats sidekiqs/info])]
+                 {:stats stats
+                  :info info})))
 
 (defroutes app
   (ANY "/" [] index-action)
