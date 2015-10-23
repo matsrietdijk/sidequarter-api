@@ -13,5 +13,6 @@
                  [environ "1.0.1"]
                  [migratus "0.8.7"]
                  [yesql "0.5.1"]
+                 [com.taoensso/carmine "2.12.0"]
                  [ring/ring-core "1.4.0"]]
   :migratus {:store :database})
