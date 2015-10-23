@@ -26,21 +26,26 @@
          (car/smembers (with-ns sk "queues"))))
 
 (defn stats [sk]
-  (let [data (wcar* (conn sk)
-                    (car/get (with-ns sk "stat:processed")) ; 0
-                    (car/get (with-ns sk "stat:failed")) ; 1
-                    (car/zcard (with-ns sk "retry")) ; 2
-                    (car/zcard (with-ns sk "schedule")) ; 3
-                    (car/zcard (with-ns sk "dead")) ; 4
-                    (car/scard (with-ns sk "processes")) ; 5
-                    (car/scard (with-ns sk "queues")) ; 6
-                    (car/smembers (with-ns sk "processes")) ; 7
-                    (car/smembers (with-ns sk "queues"))) ; 8
-        procs (get data 7)
-        more (wcar* (conn sk)
-                    (mapv #(car/hget (with-ns sk %) "busy") procs)
-                    (mapv #(car/llen (with-ns sk (str "queue:" %))) (get data 8)))
-        more-data (mapv #(reduce + %) (split-at (count procs) (mapv ->int more)))
-        vals (concat (mapv ->int (take 7 data)) more-data)
+  (let [key #(with-ns sk %)
+        data (wcar* (conn sk)
+                    (car/get (key "stat:processed")) ; 0
+                    (car/get (key "stat:failed")) ; 1
+                    (car/zcard (key "retry")) ; 2
+                    (car/zcard (key "schedule")) ; 3
+                    (car/zcard (key "dead")) ; 4
+                    (car/scard (key "processes")) ; 5
+                    (car/scard (key "queues")) ; 6
+                    (car/smembers (key "processes")) ; 7
+                    (car/smembers (key "queues"))) ; 8
+        vals (mapv ->int (take 7 data))
+        [procs queues] (take-last 2 data)
+        more-data (wcar* (conn sk)
+                         (mapv #(car/hget (key %) "busy") procs)
+                         (mapv #(car/llen (key (str "queue:" %))) queues))
+        more-vals (->> (mapv ->int more-data)
+                       (split-at (count procs))
+                       (mapv #(reduce + %)))
         keys [:processed :failed :retries :scheduled :dead :processes :queues :busy :enqueued]]
-    (apply array-map (interleave keys vals))))
+    (->> (concat vals more-vals)
+         (interleave keys)
+         (apply array-map))))
