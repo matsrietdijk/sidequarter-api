@@ -38,10 +38,19 @@
                     (sidekiqs/queues)
                     (hash-map :queues))))
 
+(defresource stats-action [sidekiq-id] resource-defaults
+  :allowed-methods [:get :options]
+  :exists? (get-entry-hash sidekiq-id)
+  :handle-ok (fn [ctx]
+               (->> (::entry ctx)
+                    (sidekiqs/stats)
+                    (hash-map :stats))))
+
 (defroutes app
   (ANY "/" [] index-action)
   (ANY "/:id" [id] (show-action id))
   (ANY "/:sidekiq-id/queues" [sidekiq-id] (queues-action sidekiq-id))
+  (ANY "/:sidekiq-id/stats" [sidekiq-id] (stats-action sidekiq-id))
   (route/not-found not-found-action))
 
 (def handler
