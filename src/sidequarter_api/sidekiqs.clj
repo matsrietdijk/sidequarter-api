@@ -23,8 +23,13 @@
       (str namespace ":" key))))
 
 (defn queues [sk]
-  (wcar* (conn sk)
-         (car/smembers (with-ns sk "queues"))))
+  (let [queues (wcar* (conn sk)
+                      (car/smembers (with-ns sk "queues")))
+        raw-sizes (wcar* (conn sk)
+                         (mapv #(car/llen (with-ns sk (str "queue:" %))) queues))
+        sizes (->> (flatten [raw-sizes])
+                   (mapv ->int))]
+    (mapv (fn [n c] {:name n :count c}) queues sizes)))
 
 (defn info [sk]
   (let [info (-> (wcar* (conn sk)
