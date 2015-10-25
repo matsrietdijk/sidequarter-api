@@ -1,6 +1,7 @@
 (ns sidequarter-api.core
   (:require [liberator.core :refer [resource defresource]]
             [ring.middleware.params :refer [wrap-params]]
+            [ring.middleware.jsonp :refer [wrap-json-with-padding]]
             [compojure.core :refer [defroutes ANY]]
             [compojure.route :as route]
             [sidequarter-api.util :refer [->valid-id not-found-resp
@@ -54,4 +55,6 @@
   (route/not-found not-found-action))
 
 (def handler
-  (wrap-params app))
+  (-> app
+      (wrap-json-with-padding)
+      (wrap-params)))
