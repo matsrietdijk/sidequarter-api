@@ -3,8 +3,8 @@
   :plugins [[lein-ring "0.9.7"]
             [lein-kibit "0.1.2"]
             [lein-environ "1.0.1"]
+            [lein-midje "3.2"]
             [migratus-lein "0.2.0"]]
-  :ring {:handler sidequarter-api.core/handler}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/java.jdbc "0.4.2"]
                  [org.postgresql/postgresql "9.4-1204-jdbc42"]
@@ -16,4 +16,6 @@
                  [com.taoensso/carmine "2.12.0"]
                  [ring/ring-core "1.4.0"]
                  [ring.middleware.jsonp "0.1.6"]]
+  :profiles {:dev {:dependencies [[midje "1.7.0"]]}}
+  :ring {:handler sidequarter-api.core/handler}
   :migratus {:store :database})
