@@ -32,3 +32,18 @@
              (->int "1,000") => 1
              (->int "1.000") => 1
              (->int "1;000") => 1))
+
+(facts "about `status-response`"
+       (fact "it has a code & a message"
+             (keys (status-response nil nil)) => [:code :message])
+       (fact "it sets first & second param correctly"
+             (:code (status-response "code" nil)) => "code"
+             (:message (status-response nil "message")) "message"))
+
+(facts "about `internal-error-resp`"
+       (fact "it has code 500"
+             (:code (internal-error-resp nil)) => 500))
+
+(facts "about `not-found-resp`"
+       (fact "it has code 404"
+             (:code (not-found-resp nil)) => 404))
