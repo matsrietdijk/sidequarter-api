@@ -1,5 +1,19 @@
 language: clojure
 
+script:
+  - lein test
+
+addons:
+  postgresql: '9.4'
+
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+  - lein migratus migrate
+  - psql -f seeds.sql -d travis_ci_test -U postgres
+
+env:
+  - DATABASE_URL='jdbc:postgres://localhost/travis_ci_test'
+
 notifications:
   email:
     on_success: never
