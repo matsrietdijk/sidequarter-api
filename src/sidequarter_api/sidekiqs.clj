@@ -27,14 +27,12 @@
                       (car/smembers (with-ns sk "queues")))
         raw-sizes (wcar* (conn sk)
                          (mapv #(car/llen (with-ns sk (str "queue:" %))) queues))
-        sizes (->> (flatten [raw-sizes])
-                   (mapv ->int))]
+        sizes (mapv ->int (flatten [raw-sizes]))]
     (mapv (fn [n c] {:name n :count c}) queues sizes)))
 
 (defn info [sk]
-  (let [info (-> (wcar* (conn sk)
-                        (car/info*))
-                 keywordize-keys)
+  (let [info (keywordize-keys (wcar* (conn sk)
+                                     (car/info*)))
         keys [:used_memory_human :used_memory_peak_human :uptime_in_seconds :redis_version
               :connected_clients]]
     (select-keys info keys)))
