@@ -2,6 +2,8 @@
   (:require [yesql.core :refer [defqueries]]
             [clojure.string :refer [blank?]]
             [clojure.walk :refer [keywordize-keys]]
+            [clj-time.core :as time]
+            [clj-time.format :as format]
             [sidequarter-api.util :refer [wcar* ->int]]
             [taoensso.carmine :as car]
             [environ.core :refer [env]]))
@@ -68,3 +70,17 @@
     (->> (concat vals more-vals)
          (interleave keys)
          (apply array-map))))
+
+(def day-format (format/formatter "YYYY-MM-dd"))
+
+(defn history [sk & {:keys [days start] :or {days 7 start (time/now)}}]
+  (let [key #(with-ns sk %)
+        dates (map #(time/minus start (time/days %)) (range days))
+        day-dates (map #(format/unparse day-format %) dates)
+        proc-keys (map #(key (str "stat:processed:" %)) day-dates)
+        fail-keys (map #(key (str "stat:failed:" %)) day-dates)
+        vals (wcar* (conn sk)
+                    (apply car/mget proc-keys)
+                    (apply car/mget fail-keys))
+        [proc-vals fail-vals] (map #(map ->int %) vals)]
+    (map (fn [d p f] {:day d :processed p :failed f}) day-dates proc-vals fail-vals)))
