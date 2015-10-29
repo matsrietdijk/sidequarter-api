@@ -14,6 +14,9 @@
            (sidekiqs/add-availability)
            (hash-map ::entry)))
 
+(defn check-available [hash]
+  (when (= (get-in hash [::entry :available] false) true) hash))
+
 (def resource-defaults
   {:available-media-types ["application/json"]
    :handle-not-found not-found-resp})
@@ -34,7 +37,7 @@
 
 (defresource queues-action [sidekiq-id] resource-defaults
   :allowed-methods [:get :options]
-  :exists? (get-entry-hash sidekiq-id)
+  :exists? (check-available (get-entry-hash sidekiq-id))
   :handle-ok (fn [ctx]
                (->> (::entry ctx)
                     (sidekiqs/queues)
@@ -42,7 +45,7 @@
 
 (defresource stats-action [sidekiq-id] resource-defaults
   :allowed-methods [:get :options]
-  :exists? (get-entry-hash sidekiq-id)
+  :exists? (check-available (get-entry-hash sidekiq-id))
   :handle-ok (fn [ctx]
                (let [[stats info] (mapv #(% (::entry ctx)) [sidekiqs/stats sidekiqs/info])]
                  {:stats stats
