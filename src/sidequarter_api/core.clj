@@ -10,7 +10,8 @@
 
 (defn get-entry-hash [id]
   (some->> (->valid-id id)
-           sidekiqs/find-by-id
+           (sidekiqs/find-by-id)
+           (sidekiqs/add-availability)
            (hash-map ::entry)))
 
 (def resource-defaults
@@ -23,7 +24,7 @@
 
 (defresource index-action resource-defaults
   :allowed-methods [:get :options]
-  :handle-ok {:sidekiqs (sidekiqs/all)})
+  :handle-ok {:sidekiqs (map sidekiqs/add-availability (sidekiqs/all))})
 
 (defresource show-action [id] resource-defaults
   :allowed-methods [:get :options]
