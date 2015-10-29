@@ -22,6 +22,13 @@
       key
       (str namespace ":" key))))
 
+(defn add-availability [sk]
+  (let [ping (try
+               (wcar* (conn sk)
+                      (car/ping))
+               (catch Exception _ nil))]
+    (assoc sk :available (= ping "PONG"))))
+
 (defn queues [sk]
   (let [queues (wcar* (conn sk)
                       (car/smembers (with-ns sk "queues")))

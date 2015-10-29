@@ -5,7 +5,7 @@
             [sidequarter-api.core :refer :all]))
 
 (def entry
-  (sidekiqs/find-by-id 1))
+  (sidekiqs/add-availability (sidekiqs/find-by-id 1)))
 
 (facts "about `get-entry-hash`"
        (fact "it returns nil for not existing id"

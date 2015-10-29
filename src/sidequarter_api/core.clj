@@ -10,8 +10,12 @@
 
 (defn get-entry-hash [id]
   (some->> (->valid-id id)
-           sidekiqs/find-by-id
+           (sidekiqs/find-by-id)
+           (sidekiqs/add-availability)
            (hash-map ::entry)))
+
+(defn check-available [hash]
+  (when (= (get-in hash [::entry :available] false) true) hash))
 
 (def resource-defaults
   {:available-media-types ["application/json"]
@@ -23,7 +27,7 @@
 
 (defresource index-action resource-defaults
   :allowed-methods [:get :options]
-  :handle-ok {:sidekiqs (sidekiqs/all)})
+  :handle-ok {:sidekiqs (map sidekiqs/add-availability (sidekiqs/all))})
 
 (defresource show-action [id] resource-defaults
   :allowed-methods [:get :options]
@@ -33,7 +37,7 @@
 
 (defresource queues-action [sidekiq-id] resource-defaults
   :allowed-methods [:get :options]
-  :exists? (get-entry-hash sidekiq-id)
+  :exists? (check-available (get-entry-hash sidekiq-id))
   :handle-ok (fn [ctx]
                (->> (::entry ctx)
                     (sidekiqs/queues)
@@ -41,7 +45,7 @@
 
 (defresource stats-action [sidekiq-id] resource-defaults
   :allowed-methods [:get :options]
-  :exists? (get-entry-hash sidekiq-id)
+  :exists? (check-available (get-entry-hash sidekiq-id))
   :handle-ok (fn [ctx]
                (let [[stats info] (mapv #(% (::entry ctx)) [sidekiqs/stats sidekiqs/info])]
                  {:stats stats
