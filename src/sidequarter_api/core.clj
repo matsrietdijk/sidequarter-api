@@ -64,7 +64,7 @@
                    {::days (opt-query-param! ctx "days" positive-int! 7)
                     ::till (opt-query-param! ctx "till" date! (time/now))}]
                   (catch Exception _ true)))
-  :exists? (get-entry-hash sidekiq-id)
+  :exists? (check-available (get-entry-hash sidekiq-id))
   :handle-ok (fn [ctx] {:days (sidekiqs/history (::entry ctx) (::days ctx) (::till ctx))}))
 
 (defroutes app
