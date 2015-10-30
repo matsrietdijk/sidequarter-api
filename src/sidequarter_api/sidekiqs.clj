@@ -4,7 +4,7 @@
             [clojure.walk :refer [keywordize-keys]]
             [clj-time.core :as time]
             [clj-time.format :as format]
-            [sidequarter-api.util :refer [wcar* ->int]]
+            [sidequarter-api.util :refer [wcar* ->int day-formatter]]
             [taoensso.carmine :as car]
             [environ.core :refer [env]]))
 
@@ -71,12 +71,10 @@
          (interleave keys)
          (apply array-map))))
 
-(def day-format (format/formatter "YYYY-MM-dd"))
-
-(defn history [sk & {:keys [days start] :or {days 7 start (time/now)}}]
+(defn history [sk days till]
   (let [key #(with-ns sk %)
-        dates (map #(time/minus start (time/days %)) (range days))
-        day-dates (map #(format/unparse day-format %) dates)
+        dates (map #(time/minus till (time/days %)) (range days))
+        day-dates (map #(format/unparse day-formatter %) dates)
         proc-keys (map #(key (str "stat:processed:" %)) day-dates)
         fail-keys (map #(key (str "stat:failed:" %)) day-dates)
         vals (wcar* (conn sk)
