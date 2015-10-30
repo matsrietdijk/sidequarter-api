@@ -4,8 +4,13 @@
             [ring.middleware.jsonp :refer [wrap-json-with-padding]]
             [compojure.core :refer [defroutes ANY]]
             [compojure.route :as route]
-            [sidequarter-api.util :refer [->valid-id not-found-resp
-                                          internal-error-resp]]
+            [clj-time.core :as time]
+            [sidequarter-api.util :refer [->valid-id
+                                          not-found-resp
+                                          internal-error-resp
+                                          positive-int!
+                                          date!
+                                          opt-query-param!]]
             [sidequarter-api.sidekiqs :as sidekiqs]))
 
 (defn get-entry-hash [id]
@@ -53,11 +58,14 @@
 
 (defresource history-action [sidekiq-id] resource-defaults
   :allowed-methods [:get :options]
+  :malformed? (fn [ctx]
+                (try
+                  [false
+                   {::days (opt-query-param! ctx "days" positive-int! 7)
+                    ::till (opt-query-param! ctx "till" date! (time/now))}]
+                  (catch Exception _ true)))
   :exists? (get-entry-hash sidekiq-id)
-  :handle-ok (fn [ctx]
-               (->> (::entry ctx)
-                    (sidekiqs/history)
-                    (hash-map :days))))
+  :handle-ok (fn [ctx] {:days (sidekiqs/history (::entry ctx) (::days ctx) (::till ctx))}))
 
 (defroutes app
   (ANY "/" [] index-action)
