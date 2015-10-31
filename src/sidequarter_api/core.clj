@@ -5,16 +5,14 @@
             [compojure.core :refer [defroutes ANY]]
             [compojure.route :as route]
             [clj-time.core :as time]
-            [sidequarter-api.util :refer [->valid-id
-                                          not-found-resp
+            [sidequarter-api.parsers :as parser]
+            [sidequarter-api.util :refer [not-found-resp
                                           internal-error-resp
-                                          positive-int!
-                                          date!
                                           opt-query-param!]]
             [sidequarter-api.sidekiqs :as sidekiqs]))
 
 (defn get-entry-hash [id]
-  (some->> (->valid-id id)
+  (some->> (parser/positive-int id)
            (sidekiqs/find-by-id)
            (sidekiqs/add-availability)
            (hash-map ::entry)))
@@ -61,8 +59,8 @@
   :malformed? (fn [ctx]
                 (try
                   [false
-                   {::days (opt-query-param! ctx "days" positive-int! 7)
-                    ::till (opt-query-param! ctx "till" date! (time/now))}]
+                   {::days (opt-query-param! ctx "days" parser/positive-int! 7)
+                    ::till (opt-query-param! ctx "till" parser/date! (time/now))}]
                   (catch Exception _ true)))
   :exists? (check-available (get-entry-hash sidekiq-id))
   :handle-ok (fn [ctx] {:days (sidekiqs/history (::entry ctx) (::days ctx) (::till ctx))}))

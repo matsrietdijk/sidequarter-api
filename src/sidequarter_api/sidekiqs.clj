@@ -4,7 +4,8 @@
             [clojure.walk :refer [keywordize-keys]]
             [clj-time.core :as time]
             [clj-time.format :as format]
-            [sidequarter-api.util :refer [wcar* ->int day-formatter]]
+            [sidequarter-api.util :refer [wcar*]]
+            [sidequarter-api.parsers :as parser]
             [taoensso.carmine :as car]
             [environ.core :refer [env]]))
 
@@ -36,7 +37,7 @@
                       (car/smembers (with-ns sk "queues")))
         raw-sizes (wcar* (conn sk)
                          (mapv #(car/llen (with-ns sk (str "queue:" %))) queues))
-        sizes (mapv ->int (flatten [raw-sizes]))]
+        sizes (map #(or (parser/integer %) 0) (flatten [raw-sizes]))]
     (mapv (fn [n c] {:name n :count c}) queues sizes)))
 
 (defn info [sk]
@@ -59,11 +60,11 @@
                     (car/smembers (key "processes")) ; 7
                     (car/smembers (key "queues"))) ; 8
         [raw-vals [procs queues]] (split-at 7 data)
-        vals (mapv ->int raw-vals)
+        vals (map #(or (parser/integer %) 0) raw-vals)
         more-data (wcar* (conn sk)
                          (mapv #(car/hget (key %) "busy") procs)
                          (mapv #(car/llen (key (str "queue:" %))) queues))
-        more-vals (->> (mapv ->int more-data)
+        more-vals (->> (map #(or (parser/integer %) 0) more-data)
                        (split-at (count procs))
                        (mapv #(reduce + %)))
         keys [:processed :failed :retries :scheduled :dead :processes :queues :busy :enqueued]]
@@ -74,11 +75,14 @@
 (defn history [sk days till]
   (let [key #(with-ns sk %)
         dates (map #(time/minus till (time/days %)) (range days))
-        day-dates (map #(format/unparse day-formatter %) dates)
+        day-dates (map parser/undate! dates)
         proc-keys (map #(key (str "stat:processed:" %)) day-dates)
         fail-keys (map #(key (str "stat:failed:" %)) day-dates)
-        vals (wcar* (conn sk)
-                    (apply car/mget proc-keys)
-                    (apply car/mget fail-keys))
-        [proc-vals fail-vals] (map #(map ->int %) vals)]
-    (map (fn [d p f] {:day d :processed p :failed f}) day-dates proc-vals fail-vals)))
+        [proc-vals fail-vals] (wcar* (conn sk)
+                                     (apply car/mget proc-keys)
+                                     (apply car/mget fail-keys))]
+    (map (fn [d p f]
+           {:day d
+            :processed (or (parser/integer p) 0)
+            :failed (or (parser/integer f) 0)})
+         day-dates proc-vals fail-vals)))
