@@ -4,7 +4,7 @@ An API backend to monitor multiple [Sidekiq](http://sidekiq.org) instances. Keep
 
 # Code Status
 
-[![Build Status](https://travis-ci.org/matsrietdijk/sidequarter-api.svg)](https://travis-ci.org/matsrietdijk/sidequarter-api)
+[![Build Status](https://travis-ci.org/matsrietdijk/sidequarter-api.svg?branch=master)](https://travis-ci.org/matsrietdijk/sidequarter-api)
 
 # Flow
 
