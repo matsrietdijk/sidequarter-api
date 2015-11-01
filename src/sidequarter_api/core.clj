@@ -11,66 +11,70 @@
                                           opt-query-param!]]
             [sidequarter-api.sidekiqs :as sidekiqs]))
 
-(defn get-entry-hash [id]
+(defn ^:private entry [id]
   (some->> (parser/positive-int id)
            (sidekiqs/find-by-id)
-           (sidekiqs/add-availability)
-           (hash-map ::entry)))
+           (sidekiqs/add-availability)))
 
-(defn check-available [hash]
-  (when (= (get-in hash [::entry :available] false) true) hash))
+(defn ^:private available-entry [id]
+  (let [sidekiq (entry id)]
+    (when (= (:available sidekiq) true) sidekiq)))
 
 (def resource-defaults
   {:available-media-types ["application/json"]
+   :allowed-methods [:get :options]
    :handle-not-found not-found-resp})
    ; :handle-exception internal-error-resp})
 
-(defresource not-found-action resource-defaults
+(defn detail-resource-defaults [id]
+  (merge resource-defaults
+         {:exists? (when-let [sidekiq (available-entry id)]
+                     {::entry sidekiq})}))
+
+(defresource not-found-action
+  resource-defaults
   :handle-ok not-found-resp)
 
-(defresource index-action resource-defaults
-  :allowed-methods [:get :options]
+(defresource index-action
+  resource-defaults
   :handle-ok {:sidekiqs (map sidekiqs/add-availability (sidekiqs/all))})
 
-(defresource show-action [id] resource-defaults
-  :allowed-methods [:get :options]
-  :exists? (get-entry-hash id)
+(defresource show-action [id]
+  resource-defaults
+  :exists? (when-let [sidekiq (entry id)]
+             {::entry sidekiq})
   :handle-ok (fn [ctx]
                {:sidekiq (::entry ctx)}))
 
-(defresource queues-action [sidekiq-id] resource-defaults
-  :allowed-methods [:get :options]
-  :exists? (check-available (get-entry-hash sidekiq-id))
+(defresource queues-action [id]
+  (detail-resource-defaults id)
   :handle-ok (fn [ctx]
-               (->> (::entry ctx)
-                    (sidekiqs/queues)
-                    (hash-map :queues))))
+               {:queues (sidekiqs/queues (::entry ctx))}))
 
-(defresource stats-action [sidekiq-id] resource-defaults
-  :allowed-methods [:get :options]
-  :exists? (check-available (get-entry-hash sidekiq-id))
+(defresource stats-action [id]
+  (detail-resource-defaults id)
   :handle-ok (fn [ctx]
-               (let [[stats info] (mapv #(% (::entry ctx)) [sidekiqs/stats sidekiqs/info])]
-                 {:stats stats
-                  :info info})))
+               (let [sidekiq (::entry ctx)]
+                 {:stats (sidekiqs/stats sidekiq)
+                  :info (sidekiqs/info sidekiq)})))
 
-(defresource history-action [sidekiq-id] resource-defaults
-  :allowed-methods [:get :options]
+(defresource history-action [id]
+  (detail-resource-defaults id)
   :malformed? (fn [ctx]
                 (try
                   [false
                    {::days (opt-query-param! ctx "days" parser/positive-int! 7)
                     ::till (opt-query-param! ctx "till" parser/date! (time/now))}]
                   (catch Exception _ true)))
-  :exists? (check-available (get-entry-hash sidekiq-id))
-  :handle-ok (fn [ctx] {:days (sidekiqs/history (::entry ctx) (::days ctx) (::till ctx))}))
+  :handle-ok (fn [ctx]
+               {:days (sidekiqs/history (::entry ctx) (::days ctx) (::till ctx))}))
 
 (defroutes app
   (ANY "/" [] index-action)
   (ANY "/:id" [id] (show-action id))
-  (ANY "/:sidekiq-id/queues" [sidekiq-id] (queues-action sidekiq-id))
-  (ANY "/:sidekiq-id/stats" [sidekiq-id] (stats-action sidekiq-id))
-  (ANY "/:sidekiq-id/history" [sidekiq-id] (history-action sidekiq-id))
+  (ANY "/:id/queues" [id] (queues-action id))
+  (ANY "/:id/stats" [id] (stats-action id))
+  (ANY "/:id/history" [id] (history-action id))
   (route/not-found not-found-action))
 
 (def handler
