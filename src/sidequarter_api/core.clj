@@ -5,6 +5,7 @@
             [compojure.core :refer [defroutes ANY]]
             [compojure.route :as route]
             [clj-time.core :as time]
+            [environ.core :refer [env]]
             [sidequarter-api.parsers :as parser]
             [sidequarter-api.util :refer [not-found-resp
                                           unprocessable-entity-resp
@@ -79,6 +80,8 @@
   (route/not-found not-found-action))
 
 (def handler
-  (-> app
-      (wrap-json-with-padding)
-      (wrap-params)))
+  (if (some? (env :database-url))
+    (-> app
+        (wrap-json-with-padding)
+        (wrap-params))
+    (throw (Exception. "Missing required environment variables"))))
