@@ -15,4 +15,7 @@
 (defn not-found-resp [_]
   (status-response 404 "Not found"))
 
+(defn unprocessable-entity-resp [_]
+  (status-response 422 "Unprocessable entity"))
+
 (defmacro wcar* [conn & body] `(car/wcar ~conn ~@body))
