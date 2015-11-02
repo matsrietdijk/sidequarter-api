@@ -7,6 +7,7 @@
             [clj-time.core :as time]
             [sidequarter-api.parsers :as parser]
             [sidequarter-api.util :refer [not-found-resp
+                                          unprocessable-entity-resp
                                           internal-error-resp
                                           opt-query-param!]]
             [sidequarter-api.sidekiqs :as sidekiqs]))
@@ -23,7 +24,8 @@
 (def resource-defaults
   {:available-media-types ["application/json"]
    :allowed-methods [:get :options]
-   :handle-not-found not-found-resp})
+   :handle-not-found not-found-resp
+   :handle-unprocessable-entity unprocessable-entity-resp})
    ; :handle-exception internal-error-resp})
 
 (defn detail-resource-defaults [id]
@@ -60,12 +62,11 @@
 
 (defresource history-action [id]
   (detail-resource-defaults id)
-  :malformed? (fn [ctx]
-                (try
-                  [false
-                   {::days (opt-query-param! ctx "days" parser/positive-int! 7)
-                    ::till (opt-query-param! ctx "till" parser/date! (time/now))}]
-                  (catch Exception _ true)))
+  :processable? (fn [ctx]
+                  (try
+                    {::days (opt-query-param! ctx "days" parser/positive-int! 7)
+                     ::till (opt-query-param! ctx "till" parser/date! (time/now))}
+                    (catch Exception _ false)))
   :handle-ok (fn [ctx]
                {:days (sidekiqs/history (::entry ctx) (::days ctx) (::till ctx))}))
 
