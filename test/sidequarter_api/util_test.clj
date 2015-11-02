@@ -33,3 +33,7 @@
 (facts "about `not-found-resp`"
        (fact "it has code 404"
              (:code (not-found-resp nil)) => 404))
+
+(facts "about `unprocessable-entity-resp`"
+       (fact "it has code 422"
+             (:code (unprocessable-entity-resp nil)) => 422))
