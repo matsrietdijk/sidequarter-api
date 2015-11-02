@@ -24,7 +24,7 @@
 
 (def resource-defaults
   {:available-media-types ["application/json"]
-   :allowed-methods [:get :options]
+   :allowed-methods [:get :head :options]
    :handle-not-found not-found-resp
    :handle-unprocessable-entity unprocessable-entity-resp})
    ; :handle-exception internal-error-resp})
