@@ -54,6 +54,10 @@
   :handle-ok (fn [ctx]
                {:queues (sidekiqs/queues (::entry ctx))}))
 
+(defresource queue-action [id name]
+  (detail-resource-defaults id)
+  :handle-ok "queue detail")
+
 (defresource stats-action [id]
   (detail-resource-defaults id)
   :handle-ok (fn [ctx]
@@ -75,6 +79,7 @@
   (ANY "/" [] index-action)
   (ANY "/:id" [id] (show-action id))
   (ANY "/:id/queues" [id] (queues-action id))
+  (ANY "/:id/queues/:name" [id name] (queue-action id name))
   (ANY "/:id/stats" [id] (stats-action id))
   (ANY "/:id/history" [id] (history-action id))
   (route/not-found not-found-action))
