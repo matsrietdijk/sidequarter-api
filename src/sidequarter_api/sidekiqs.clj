@@ -32,6 +32,11 @@
                (catch Exception _ nil))]
     (assoc sk :available (= ping "PONG"))))
 
+(defn has-queue? [sk queue]
+  (let [res (wcar* (conn sk)
+                   (car/smembers (with-ns sk "queues")))]
+    (some #(= queue %) res)))
+
 (defn queues [sk]
   (let [queues (wcar* (conn sk)
                       (car/smembers (with-ns sk "queues")))
