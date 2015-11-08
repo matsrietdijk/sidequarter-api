@@ -59,7 +59,8 @@
   :exists? (when-let [sidekiq (available-entry id)]
              (when (sidekiqs/has-queue? sidekiq name)
                {::entry sidekiq}))
-  :handle-ok "queue detail")
+  :handle-ok (fn [ctx]
+               {:workers []}))
 
 (defresource stats-action [id]
   (detail-resource-defaults id)
