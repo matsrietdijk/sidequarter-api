@@ -60,7 +60,7 @@
              (when (sidekiqs/has-queue? sidekiq name)
                {::entry sidekiq}))
   :handle-ok (fn [ctx]
-               {:workers []}))
+               {:workers (sidekiqs/workers (::entry ctx) name)}))
 
 (defresource stats-action [id]
   (detail-resource-defaults id)
