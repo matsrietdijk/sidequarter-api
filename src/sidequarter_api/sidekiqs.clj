@@ -45,6 +45,9 @@
         sizes (map #(or (parser/integer %) 0) (flatten [raw-sizes]))]
     (mapv (fn [n c] {:name n :count c}) queues sizes)))
 
+(defn workers [sk queue]
+  [])
+
 (defn info [sk]
   (let [info (keywordize-keys (wcar* (conn sk)
                                      (car/info*)))
