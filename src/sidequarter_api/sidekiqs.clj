@@ -7,6 +7,7 @@
             [sidequarter-api.util :refer [wcar*]]
             [sidequarter-api.parsers :as parser]
             [taoensso.carmine :as car]
+            [clj-json [core :as json]]
             [environ.core :refer [env]]))
 
 (defqueries "queries/sidekiqs.sql"
@@ -32,6 +33,11 @@
                (catch Exception _ nil))]
     (assoc sk :available (= ping "PONG"))))
 
+(defn has-queue? [sk queue]
+  (let [res (wcar* (conn sk)
+                   (car/smembers (with-ns sk "queues")))]
+    (some #(= queue %) res)))
+
 (defn queues [sk]
   (let [queues (wcar* (conn sk)
                       (car/smembers (with-ns sk "queues")))
@@ -39,6 +45,11 @@
                          (mapv #(car/llen (with-ns sk (str "queue:" %))) queues))
         sizes (map #(or (parser/integer %) 0) (flatten [raw-sizes]))]
     (mapv (fn [n c] {:name n :count c}) queues sizes)))
+
+(defn workers [sk queue]
+  (let [workers (wcar* (conn sk)
+                       (car/lrange (with-ns sk (str "queue:" queue)) 0 -1))]
+    (map json/parse-string workers)))
 
 (defn info [sk]
   (let [info (keywordize-keys (wcar* (conn sk)
