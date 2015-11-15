@@ -14,6 +14,7 @@
                  [migratus "0.8.7"]
                  [yesql "0.5.1"]
                  [clj-time "0.11.0"]
+                 [clj-json "0.5.3"]
                  [com.taoensso/carmine "2.12.0"]
                  [ring/ring-core "1.4.0"]
                  [ring.middleware.jsonp "0.1.6"]]
