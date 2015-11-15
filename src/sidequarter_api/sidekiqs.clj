@@ -46,7 +46,10 @@
     (mapv (fn [n c] {:name n :count c}) queues sizes)))
 
 (defn workers [sk queue]
-  [])
+  (let [workers [(wcar* (conn sk)
+                        (car/lrange (with-ns sk (str "queue:" queue)) 0 -1))]]
+    workers
+    ))
 
 (defn info [sk]
   (let [info (keywordize-keys (wcar* (conn sk)
