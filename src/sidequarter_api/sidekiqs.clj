@@ -7,6 +7,7 @@
             [sidequarter-api.util :refer [wcar*]]
             [sidequarter-api.parsers :as parser]
             [taoensso.carmine :as car]
+            [clj-json [core :as json]]
             [environ.core :refer [env]]))
 
 (defqueries "queries/sidekiqs.sql"
@@ -46,10 +47,9 @@
     (mapv (fn [n c] {:name n :count c}) queues sizes)))
 
 (defn workers [sk queue]
-  (let [workers [(wcar* (conn sk)
-                        (car/lrange (with-ns sk (str "queue:" queue)) 0 -1))]]
-    workers
-    ))
+  (let [workers (wcar* (conn sk)
+                       (car/lrange (with-ns sk (str "queue:" queue)) 0 -1))]
+    (map json/parse-string workers)))
 
 (defn info [sk]
   (let [info (keywordize-keys (wcar* (conn sk)
