@@ -6,6 +6,7 @@ An API backend to monitor multiple [Sidekiq](http://sidekiq.org) instances. Keep
 
 [![Build Status](https://travis-ci.org/matsrietdijk/sidequarter-api.svg?branch=master)](https://travis-ci.org/matsrietdijk/sidequarter-api)
 [![Dependency Status](https://www.versioneye.com/user/projects/564a29c8cc00b0001900004f/badge.svg?style=flat)](https://www.versioneye.com/user/projects/564a29c8cc00b0001900004f)
+
 # Flow
 
 Within this project the following flow is used regarding version/source control:
