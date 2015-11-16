@@ -4,7 +4,7 @@
             [clojure.walk :refer [keywordize-keys]]
             [clj-time.core :as time]
             [clj-time.format :as format]
-            [sidequarter-api.util :refer [wcar*]]
+            [sidequarter-api.util :refer [wcar* from-seconds update-multiple]]
             [sidequarter-api.parsers :as parser]
             [taoensso.carmine :as car]
             [clj-json [core :as json]]
@@ -47,9 +47,12 @@
     (mapv (fn [n c] {:name n :count c}) queues sizes)))
 
 (defn workers [sk queue]
-  (let [workers (wcar* (conn sk)
-                       (car/lrange (with-ns sk (str "queue:" queue)) 0 -1))]
-    (map json/parse-string workers)))
+  (let [raw-workers (wcar* (conn sk)
+                           (car/lrange (with-ns sk (str "queue:" queue)) 0 -1))
+        workers (map json/parse-string raw-workers)]
+    (update-multiple workers
+                     ["created_at" "enqueued_at" "failed_at" "retried_at"]
+                     #(str (from-seconds %)))))
 
 (defn info [sk]
   (let [info (keywordize-keys (wcar* (conn sk)
