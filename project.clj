@@ -18,7 +18,7 @@
                  [com.taoensso/carmine "2.12.0"]
                  [ring/ring-core "1.4.0"]
                  [ring.middleware.jsonp "0.1.6"]]
-  :profiles {:test {:dependencies [[midje "1.7.0"]]}}
+  :profiles {:test {:dependencies [[midje "1.8.2"]]}}
   :aliases {"test" ["with-profile" "test" "midje"]}
   :ring {:handler sidequarter-api.core/handler}
   :migratus {:store :database
