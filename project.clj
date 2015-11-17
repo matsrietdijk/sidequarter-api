@@ -7,7 +7,7 @@
             [migratus-lein "0.2.0"]]
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/java.jdbc "0.4.2"]
-                 [org.postgresql/postgresql "9.4-1204-jdbc42"]
+                 [org.postgresql/postgresql "9.4-1205-jdbc42"]
                  [liberator "0.14.0"]
                  [compojure "1.4.0"]
                  [environ "1.0.1"]
