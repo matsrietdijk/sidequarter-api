@@ -8,7 +8,7 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/java.jdbc "0.4.2"]
                  [org.postgresql/postgresql "9.4-1204-jdbc42"]
-                 [liberator "0.13"]
+                 [liberator "0.14.0"]
                  [compojure "1.4.0"]
                  [environ "1.0.1"]
                  [migratus "0.8.7"]
