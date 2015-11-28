@@ -2,12 +2,12 @@
 
 An API backend to monitor multiple [Sidekiq](http://sidekiq.org) instances. Keeping an eye out for your Sidekiqs without having to find them individually.
 
-# Code Status
+## Code Status
 
 [![Build Status](https://travis-ci.org/matsrietdijk/sidequarter-api.svg?branch=master)](https://travis-ci.org/matsrietdijk/sidequarter-api)
 [![Dependency Status](https://www.versioneye.com/user/projects/564a29c8cc00b0001900004f/badge.svg)](https://www.versioneye.com/user/projects/564a29c8cc00b0001900004f)
 
-# Flow
+## Flow
 
 Within this project the following flow is used regarding version/source control:
 
@@ -21,3 +21,7 @@ Within this project the following flow is used regarding version/source control:
 The categories that are used in this project for branches are:
 
 `feature`, `patch`, `update` and `release`
+
+## Copyright
+
+&copy; 2015 Mats Rietdijk & Tolga Paksoy
