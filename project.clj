@@ -11,7 +11,7 @@
                  [liberator "0.14.0"]
                  [compojure "1.4.0"]
                  [environ "1.0.1"]
-                 [migratus "0.8.7"]
+                 [migratus "0.8.8"]
                  [yesql "0.5.1"]
                  [clj-time "0.11.0"]
                  [clj-json "0.5.3"]
